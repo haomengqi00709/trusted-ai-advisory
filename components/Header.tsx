@@ -98,12 +98,17 @@ const Header: React.FC<HeaderProps> = ({ onInquireClick, currentLang, onLangChan
       onMouseLeave={() => setIsDemosOpen(false)}
     >
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
-        <div className="flex flex-col">
-          <span className="font-display font-bold text-xl md:text-2xl tracking-tighter uppercase leading-none cursor-pointer hover:text-[#0066FF] transition-colors" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-            Trusted AI Advisory
-          </span>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[11px] uppercase tracking-widest text-black/60 font-black">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+          <img
+            src="/logo/Gemini_Generated_Image_uqe89tuqe89tuqe8.png"
+            alt="Trusted AI Advisory Logo"
+            className="w-10 h-10 md:w-12 md:h-12 object-contain"
+          />
+          <div className="flex flex-col">
+            <span className="font-display font-bold text-lg md:text-2xl tracking-tighter uppercase leading-none hover:text-[#0066FF] transition-colors">
+              Trusted AI Advisory
+            </span>
+            <span className="text-[10px] md:text-[11px] uppercase tracking-widest text-black/60 font-black hidden sm:block">
               {t.subtitle}
             </span>
           </div>
