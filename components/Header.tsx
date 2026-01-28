@@ -100,7 +100,7 @@ const Header: React.FC<HeaderProps> = ({ onInquireClick, currentLang, onLangChan
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
           <img
-            src="/logo/Gemini_Generated_Image_s2uq39s2uq39s2uq.png"
+            src="/logo/Gemini_Generated_Image_s2uq39s2uq39s2uq_pixian_ai.png"
             alt="Trusted AI Advisory Logo"
             className="w-10 h-10 md:w-12 md:h-12 object-contain"
           />
