@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Language } from '../App';
 
 interface ValuesProps {
@@ -8,6 +8,18 @@ interface ValuesProps {
 
 const Values: React.FC<ValuesProps> = ({ lang }) => {
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (activeScenario) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeScenario]);
 
   const tenets = {
     en: [
@@ -343,36 +355,45 @@ const Values: React.FC<ValuesProps> = ({ lang }) => {
       {/* Scenario Modal Overlay */}
       {activeScenario && (
         <div
-          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6"
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 md:p-6"
           onClick={() => setActiveScenario(null)}
         >
           <div
-            className="bg-white max-w-2xl w-full p-10 relative animate-fadeIn"
+            className="bg-white max-w-2xl w-full max-h-[90vh] overflow-y-auto relative animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setActiveScenario(null)}
-              className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center border border-black/10 hover:border-[#0066FF] hover:text-[#0066FF] transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            {/* Sticky Header with Close Button */}
+            <div className="sticky top-0 bg-white z-10 p-4 md:p-6 pb-0 flex justify-between items-start">
+              <div>
+                {tenets.filter(t => t.id === activeScenario).map(item => (
+                  <React.Fragment key={item.id}>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0066FF] block mb-2">
+                      {item.tag} // {lang === 'en' ? 'Use Case' : 'Cas d\'Usage'}
+                    </span>
+                    <h3 className="text-xl md:text-3xl font-black uppercase tracking-tight font-display">
+                      {item.scenario.title}
+                    </h3>
+                  </React.Fragment>
+                ))}
+              </div>
+              <button
+                onClick={() => setActiveScenario(null)}
+                className="shrink-0 ml-4 w-10 h-10 flex items-center justify-center border border-black/10 hover:border-[#0066FF] hover:text-[#0066FF] transition-colors bg-white"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
-            {tenets.filter(t => t.id === activeScenario).map(item => (
-              <div key={item.id}>
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0066FF] block mb-2">
-                  {item.tag} // {lang === 'en' ? 'Use Case' : 'Cas d\'Usage'}
-                </span>
-                <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight font-display mb-8">
-                  {item.scenario.title}
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Content */}
+            <div className="p-4 md:p-6 pt-6">
+              {tenets.filter(t => t.id === activeScenario).map(item => (
+                <div key={item.id} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {/* Before */}
-                  <div className="border border-black/10 p-6 bg-neutral-50">
+                  <div className="border border-black/10 p-4 md:p-6 bg-neutral-50">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center shrink-0">
                         <svg className="w-4 h-4 text-black/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -387,9 +408,9 @@ const Values: React.FC<ValuesProps> = ({ lang }) => {
                   </div>
 
                   {/* After */}
-                  <div className="border border-[#0066FF]/30 p-6 bg-[#F8FAFF]">
+                  <div className="border border-[#0066FF]/30 p-4 md:p-6 bg-[#F8FAFF]">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 rounded-full bg-[#0066FF] flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-[#0066FF] flex items-center justify-center shrink-0">
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                         </svg>
@@ -403,8 +424,8 @@ const Values: React.FC<ValuesProps> = ({ lang }) => {
                     </p>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}

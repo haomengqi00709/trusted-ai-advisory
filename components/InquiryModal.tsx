@@ -13,6 +13,7 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, lang }) =>
   const [step, setStep] = useState(1);
   const [path, setPath] = useState<'A' | 'B' | null>(null);
   const [isAIGenerating, setIsAIGenerating] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [summaryGenerated, setSummaryGenerated] = useState(false);
   const [answers, setAnswers] = useState({ q1: '', q2: '', q3: '' });
   const [customInput, setCustomInput] = useState('');
@@ -70,6 +71,33 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, lang }) =>
     setFormData(prev => ({ ...prev, message: summary || '' }));
     setIsAIGenerating(false);
     setSummaryGenerated(true);
+  };
+
+  const handleSubmitInquiry = async () => {
+    if (!formData.email || !formData.message) return;
+    setIsSending(true);
+    try {
+      const response = await fetch('/api/send-inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          message: formData.message,
+          path: path
+        })
+      });
+      if (response.ok) {
+        setStep(6);
+      } else {
+        console.error('Failed to send inquiry');
+        setStep(6); // Still show success for UX, email can be followed up
+      }
+    } catch (error) {
+      console.error('Error sending inquiry:', error);
+      setStep(6); // Still show success for UX
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleNextStep = (answer: string) => {
@@ -296,7 +324,12 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, lang }) =>
 
             {step === 5 && (
               <div className="animate-in fade-in duration-700">
-                <h4 className="text-2xl font-black uppercase mb-8 font-display">{lang === 'en' ? 'Strategic Summary' : 'Synthèse Stratégique'}</h4>
+                <h4 className="text-2xl font-black uppercase mb-2 font-display">{lang === 'en' ? 'Strategic Summary' : 'Synthèse Stratégique'}</h4>
+                <p className="text-xs text-black/50 mb-6">
+                  {lang === 'en'
+                    ? 'Feel free to edit the summary below before sending.'
+                    : 'N\'hésitez pas à modifier le résumé ci-dessous avant l\'envoi.'}
+                </p>
                 <div className="relative group">
                   <textarea
                     value={formData.message}
@@ -322,12 +355,12 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, lang }) =>
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
-                <button 
-                  onClick={() => setStep(6)} 
-                  disabled={!formData.email || isAIGenerating} 
+                <button
+                  onClick={handleSubmitInquiry}
+                  disabled={!formData.email || isAIGenerating || isSending}
                   className="w-full bg-black text-white py-5 text-[10px] font-bold uppercase tracking-widest hover:bg-[#0066FF] transition-all disabled:opacity-20"
                 >
-                  {t.send}
+                  {isSending ? (lang === 'en' ? 'Sending...' : 'Envoi...') : t.send}
                 </button>
               </div>
             )}

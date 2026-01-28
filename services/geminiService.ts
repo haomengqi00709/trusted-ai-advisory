@@ -29,7 +29,7 @@ The tone should be architectural, honest, and helpful.
 export const getAdvisoryResponse = async (prompt: string) => {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION + "\n\nCompany Context:\n" + COMPANY_CONTEXT,
@@ -45,31 +45,32 @@ export const getAdvisoryResponse = async (prompt: string) => {
 };
 
 export const generateInquirySummary = async (path: string, answers: any) => {
+  const pathLabel = path === 'A' ? 'Exploring AI potential' : 'Audit & Implementation';
+
   const prompt = `
-    CLIENT DIAGNOSTIC RESULTS:
-    - Path Taken: ${path === 'A' ? 'Explore the Potential (I want to find out what AI can do)' : 'Audit & Implement (I have a specific task or problem)'}
-    - Step 2 Answer: ${answers.q1}
-    - Step 3 Answer: ${answers.q2}
-    - Step 4 Answer: ${answers.q3}
-    
-    Synthesize these answers into a formal request for advisory support. 
-    Start with: "Based on our internal review, we are currently..." 
-    Include a clear recommendation for which Trusted AI service (Workflow Discovery, Effort Audit, Prototype Design, or Literacy Calibration) is the best next step.
-    Ensure the response is a single, complete narrative. Do not use bullet points.
+Summarize this client inquiry in 3-4 short sentences:
+
+Intent: ${pathLabel}
+Current challenge: ${answers.q1}
+Main barrier: ${answers.q2}
+Desired outcome: ${answers.q3}
+
+Write a brief, professional summary from the client's perspective (use "We"). End with which service fits best: Workflow Discovery, Effort Audit, Prototype Design, or Literacy Calibration.
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
-        systemInstruction: "You are an intake specialist at Trusted AI Advisory. Synthesize client data into a plain-language executive summary. Do not use bullet points; use cohesive narrative language.\n\n" + COMPANY_CONTEXT,
-        temperature: 0.4,
+        systemInstruction: "Write a concise 3-4 sentence summary. Be direct and professional. No bullet points.",
+        temperature: 0.3,
+        maxOutputTokens: 150,
       },
     });
     return response.text;
   } catch (error) {
     console.error("Inquiry Summary Error:", error);
-    return `Based on our internal review, we are currently at the ${answers.q1} stage and seeking to address ${answers.q2}. We believe ${path === 'A' ? 'Workflow Discovery' : 'an Effort Audit'} is our best next step to achieve our goal of ${answers.q3}. This will allow us to move forward with security and policy alignment at the forefront of our operations.`;
+    return `We are looking to ${path === 'A' ? 'explore AI opportunities' : 'audit and implement AI solutions'}. Our main challenge is ${answers.q1}. We believe ${path === 'A' ? 'Workflow Discovery' : 'an Effort Audit'} would be the best next step.`;
   }
 };

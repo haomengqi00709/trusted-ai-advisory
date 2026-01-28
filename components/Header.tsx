@@ -11,6 +11,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onInquireClick, currentLang, onLangChange }) => {
   const [isDemosOpen, setIsDemosOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const t = {
     en: {
@@ -82,8 +83,9 @@ const Header: React.FC<HeaderProps> = ({ onInquireClick, currentLang, onLangChan
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, id: string) => {
     e.preventDefault();
+    setIsMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -128,8 +130,22 @@ const Header: React.FC<HeaderProps> = ({ onInquireClick, currentLang, onLangChan
           <a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="text-xs uppercase tracking-[0.2em] font-bold hover:text-[#0066FF] transition-colors">{t.contact}</a>
         </nav>
 
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center border border-black/10 rounded-full px-3 py-1 bg-neutral-50 shadow-sm">
+        <div className="flex items-center space-x-4 md:space-x-6">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden w-10 h-10 flex items-center justify-center border border-black/10 bg-neutral-50"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isMobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+
+          <div className="hidden md:flex items-center border border-black/10 rounded-full px-3 py-1 bg-neutral-50 shadow-sm">
             <button 
               onClick={() => onLangChange('en')}
               className={`text-[11px] font-black px-2 transition-colors ${currentLang === 'en' ? 'text-[#0066FF]' : 'text-black/30 hover:text-black'}`}
@@ -145,12 +161,75 @@ const Header: React.FC<HeaderProps> = ({ onInquireClick, currentLang, onLangChan
             </button>
           </div>
           
-          <button 
+          <button
             onClick={onInquireClick}
-            className="bg-black text-white px-6 py-2.5 text-xs uppercase tracking-widest font-black hover:bg-[#0066FF] transition-all"
+            className="hidden md:block bg-black text-white px-6 py-2.5 text-xs uppercase tracking-widest font-black hover:bg-[#0066FF] transition-all"
           >
             {t.inquire}
           </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={`lg:hidden absolute top-20 left-0 w-full bg-white border-b border-black/10 shadow-xl transition-all duration-300 ease-in-out overflow-hidden ${
+          isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="p-6 space-y-4">
+          <button
+            onClick={(e) => scrollToSection(e, 'core-tenets')}
+            className="block w-full text-left text-sm uppercase tracking-[0.2em] font-bold hover:text-[#0066FF] transition-colors py-3 border-b border-black/5"
+          >
+            {t.tenets}
+          </button>
+          <button
+            onClick={(e) => scrollToSection(e, 'services')}
+            className="block w-full text-left text-sm uppercase tracking-[0.2em] font-bold hover:text-[#0066FF] transition-colors py-3 border-b border-black/5"
+          >
+            {t.services}
+          </button>
+          <button
+            onClick={(e) => scrollToSection(e, 'featured-demo')}
+            className="block w-full text-left text-sm uppercase tracking-[0.2em] font-bold hover:text-[#0066FF] transition-colors py-3 border-b border-black/5"
+          >
+            {t.demos}
+          </button>
+          <button
+            onClick={(e) => scrollToSection(e, 'contact')}
+            className="block w-full text-left text-sm uppercase tracking-[0.2em] font-bold hover:text-[#0066FF] transition-colors py-3 border-b border-black/5"
+          >
+            {t.contact}
+          </button>
+
+          {/* Mobile Language Toggle */}
+          <div className="flex items-center justify-between pt-4">
+            <div className="flex items-center border border-black/10 rounded-full px-3 py-1 bg-neutral-50">
+              <button
+                onClick={() => onLangChange('en')}
+                className={`text-[11px] font-black px-2 transition-colors ${currentLang === 'en' ? 'text-[#0066FF]' : 'text-black/30 hover:text-black'}`}
+              >
+                EN
+              </button>
+              <div className="w-[1px] h-3 bg-black/10 mx-1"></div>
+              <button
+                onClick={() => onLangChange('fr')}
+                className={`text-[11px] font-black px-2 transition-colors ${currentLang === 'fr' ? 'text-[#0066FF]' : 'text-black/30 hover:text-black'}`}
+              >
+                FR
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                onInquireClick();
+              }}
+              className="bg-black text-white px-6 py-2.5 text-xs uppercase tracking-widest font-black hover:bg-[#0066FF] transition-all"
+            >
+              {t.inquire}
+            </button>
+          </div>
         </div>
       </div>
 
