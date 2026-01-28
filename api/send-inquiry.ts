@@ -7,9 +7,9 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, message, path } = req.body;
+  const { email, summary, aiGuess, path } = req.body;
 
-  if (!email || !message) {
+  if (!email || !summary) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -25,7 +25,9 @@ export default async function handler(req: any, res: any) {
         <p><strong>Path:</strong> ${path === 'A' ? 'Explore the Potential' : 'Audit & Implement'}</p>
         <hr />
         <h3>Client Summary:</h3>
-        <p style="white-space: pre-wrap;">${message}</p>
+        <p style="white-space: pre-wrap; background: #f5f5f5; padding: 16px; border-left: 3px solid #ccc;">${summary}</p>
+        <h3>AI Recommendation:</h3>
+        <p style="white-space: pre-wrap; background: #F8FAFF; padding: 16px; border-left: 3px solid #0066FF;">${aiGuess}</p>
       `,
     });
 

@@ -17,7 +17,7 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, lang }) =>
   const [summaryGenerated, setSummaryGenerated] = useState(false);
   const [answers, setAnswers] = useState({ q1: '', q2: '', q3: '' });
   const [customInput, setCustomInput] = useState('');
-  const [formData, setFormData] = useState({ message: '', email: '' });
+  const [formData, setFormData] = useState({ summary: '', aiGuess: '', email: '' });
 
   useEffect(() => {
     if (step === 5 && !summaryGenerated && !isAIGenerating) {
@@ -67,14 +67,14 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, lang }) =>
   const handleGenerateSummary = async () => {
     if (!path) return;
     setIsAIGenerating(true);
-    const summary = await generateInquirySummary(path, answers);
-    setFormData(prev => ({ ...prev, message: summary || '' }));
+    const result = await generateInquirySummary(path, answers);
+    setFormData(prev => ({ ...prev, summary: result.summary, aiGuess: result.aiGuess }));
     setIsAIGenerating(false);
     setSummaryGenerated(true);
   };
 
   const handleSubmitInquiry = async () => {
-    if (!formData.email || !formData.message) return;
+    if (!formData.email || !formData.summary) return;
     setIsSending(true);
     try {
       const response = await fetch('/api/send-inquiry', {
@@ -82,7 +82,8 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, lang }) =>
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formData.email,
-          message: formData.message,
+          summary: formData.summary,
+          aiGuess: formData.aiGuess,
           path: path
         })
       });
@@ -324,27 +325,57 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, lang }) =>
 
             {step === 5 && (
               <div className="animate-in fade-in duration-700">
-                <h4 className="text-2xl font-black uppercase mb-2 font-display">{lang === 'en' ? 'Strategic Summary' : 'Synthèse Stratégique'}</h4>
+                <h4 className="text-2xl font-black uppercase mb-2 font-display">{lang === 'en' ? 'Review & Send' : 'Réviser et Envoyer'}</h4>
                 <p className="text-xs text-black/50 mb-6">
                   {lang === 'en'
-                    ? 'Feel free to edit the summary below before sending.'
-                    : 'N\'hésitez pas à modifier le résumé ci-dessous avant l\'envoi.'}
+                    ? 'Review and edit both sections below before sending.'
+                    : 'Révisez et modifiez les deux sections ci-dessous avant l\'envoi.'}
                 </p>
-                <div className="relative group">
-                  <textarea
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full h-80 border border-black/5 p-8 text-[13px] font-medium leading-relaxed mb-6 bg-white shadow-inner focus:outline-none focus:border-[#0066FF]/30 transition-colors"
-                  />
-                  {isAIGenerating && (
-                    <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[1px]">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-[#0066FF] animate-bounce"></div>
-                        <div className="w-2 h-2 bg-[#0066FF] animate-bounce delay-100"></div>
-                        <div className="w-2 h-2 bg-[#0066FF] animate-bounce delay-200"></div>
+
+                {/* Summary Box */}
+                <div className="mb-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-black/60 mb-2 block">
+                    {lang === 'en' ? 'Your Selections Summary' : 'Résumé de Vos Sélections'}
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      value={formData.summary}
+                      onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                      className="w-full h-28 border border-black/10 p-4 text-[13px] font-medium leading-relaxed bg-white focus:outline-none focus:border-[#0066FF]/30 transition-colors resize-none"
+                    />
+                    {isAIGenerating && (
+                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[1px]">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 bg-[#0066FF] animate-bounce"></div>
+                          <div className="w-2 h-2 bg-[#0066FF] animate-bounce delay-100"></div>
+                          <div className="w-2 h-2 bg-[#0066FF] animate-bounce delay-200"></div>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </div>
+
+                {/* AI Guess Box */}
+                <div className="mb-6">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-[#0066FF] mb-2 block">
+                    {lang === 'en' ? 'AI Recommendation' : 'Recommandation IA'}
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      value={formData.aiGuess}
+                      onChange={(e) => setFormData({ ...formData, aiGuess: e.target.value })}
+                      className="w-full h-28 border border-[#0066FF]/20 p-4 text-[13px] font-medium leading-relaxed bg-[#F8FAFF] focus:outline-none focus:border-[#0066FF]/50 transition-colors resize-none"
+                    />
+                    {isAIGenerating && (
+                      <div className="absolute inset-0 bg-[#F8FAFF]/60 flex items-center justify-center backdrop-blur-[1px]">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 bg-[#0066FF] animate-bounce"></div>
+                          <div className="w-2 h-2 bg-[#0066FF] animate-bounce delay-100"></div>
+                          <div className="w-2 h-2 bg-[#0066FF] animate-bounce delay-200"></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="mb-4">
                   <input 

@@ -44,33 +44,62 @@ export const getAdvisoryResponse = async (prompt: string) => {
   }
 };
 
-export const generateInquirySummary = async (path: string, answers: any) => {
+export const generateInquirySummary = async (path: string, answers: any): Promise<{ summary: string; aiGuess: string }> => {
   const pathLabel = path === 'A' ? 'Exploring AI potential' : 'Audit & Implementation';
 
-  const prompt = `
-Summarize this client inquiry in 3-4 short sentences:
+  const summaryPrompt = `
+Summarize what this client selected in 2-3 sentences. Just restate their selections clearly:
 
 Intent: ${pathLabel}
 Current challenge: ${answers.q1}
 Main barrier: ${answers.q2}
 Desired outcome: ${answers.q3}
 
-Write a brief, professional summary from the client's perspective (use "We"). End with which service fits best: Workflow Discovery, Effort Audit, Prototype Design, or Literacy Calibration.
+Write from the client's perspective (use "We"). Be factual, no interpretation.
+  `;
+
+  const guessPrompt = `
+Based on these client selections, provide your best guess about their underlying needs and recommend a service:
+
+Intent: ${pathLabel}
+Current challenge: ${answers.q1}
+Main barrier: ${answers.q2}
+Desired outcome: ${answers.q3}
+
+In 2-3 sentences, interpret what they likely need and recommend one service: Workflow Discovery, Effort Audit, Prototype Design, or Literacy Calibration. Explain why briefly.
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: "Write a concise 3-4 sentence summary. Be direct and professional. No bullet points.",
-        temperature: 0.3,
-        maxOutputTokens: 150,
-      },
-    });
-    return response.text;
+    const [summaryRes, guessRes] = await Promise.all([
+      ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: summaryPrompt,
+        config: {
+          systemInstruction: "Write a factual 2-3 sentence summary restating what the client selected. No interpretation. No bullet points.",
+          temperature: 0.2,
+          maxOutputTokens: 100,
+        },
+      }),
+      ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: guessPrompt,
+        config: {
+          systemInstruction: "Provide insightful interpretation of what the client needs. Be helpful and specific. Recommend one service. No bullet points.",
+          temperature: 0.5,
+          maxOutputTokens: 120,
+        },
+      })
+    ]);
+
+    return {
+      summary: summaryRes.text || '',
+      aiGuess: guessRes.text || ''
+    };
   } catch (error) {
     console.error("Inquiry Summary Error:", error);
-    return `We are looking to ${path === 'A' ? 'explore AI opportunities' : 'audit and implement AI solutions'}. Our main challenge is ${answers.q1}. We believe ${path === 'A' ? 'Workflow Discovery' : 'an Effort Audit'} would be the best next step.`;
+    return {
+      summary: `We are looking to ${path === 'A' ? 'explore AI opportunities' : 'audit and implement AI solutions'}. Our main challenge relates to ${answers.q1 ? 'operational efficiency' : 'getting started'}.`,
+      aiGuess: `Based on your selections, ${path === 'A' ? 'Workflow Discovery' : 'Effort Audit'} would be a strong starting point to address your needs.`
+    };
   }
 };
