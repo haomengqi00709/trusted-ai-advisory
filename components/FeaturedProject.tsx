@@ -141,35 +141,39 @@ const FeaturedProject: React.FC<FeaturedProjectProps> = ({ lang }) => {
               </p>
             </div>
 
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-y-auto lg:overflow-hidden">
               {project.strategy.map((item, idx) => {
                 const isActive = hoveredCard === idx;
                 return (
-                  <div 
+                  <div
                     key={idx}
                     onMouseEnter={() => setHoveredCard(idx)}
-                    className={`relative flex flex-col border-b last:border-b-0 border-black transition-all duration-700 ease-in-out cursor-default overflow-hidden ${isActive ? 'flex-[6] bg-white' : 'flex-1 bg-neutral-50/60'}`}
+                    className={`relative flex flex-col border-b last:border-b-0 border-black cursor-default overflow-hidden bg-white
+                      lg:transition-all lg:duration-700 lg:ease-in-out
+                      ${isActive ? 'lg:flex-[6] lg:bg-white' : 'lg:flex-1 lg:bg-neutral-50/60'}
+                    `}
                   >
-                    <div className="px-6 pt-2 pb-6 h-full flex flex-col">
-                      <div className="flex items-center gap-4 mb-2 shrink-0">
-                        <span className={`text-xs font-mono font-black transition-colors ${isActive ? 'text-[#0066FF]' : 'text-black/20'}`}>
+                    <div className="px-4 lg:px-6 py-4 lg:pt-2 lg:pb-6 h-full flex flex-col">
+                      <div className="flex items-center gap-3 lg:gap-4 mb-2 shrink-0">
+                        <span className={`text-xs font-mono font-black text-[#0066FF] lg:transition-colors ${isActive ? 'lg:text-[#0066FF]' : 'lg:text-black/20'}`}>
                           /0{item.id}
                         </span>
-                        <h3 className={`text-sm md:text-base font-black uppercase tracking-widest transition-colors ${isActive ? 'text-black' : 'text-black/60'}`}>
+                        <h3 className={`text-xs lg:text-base font-black uppercase tracking-widest text-black lg:transition-colors ${isActive ? 'lg:text-black' : 'lg:text-black/60'}`}>
                           {item.title}
                         </h3>
                       </div>
 
-                      <div className={`transition-all duration-500 delay-100 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
-                         <p className="text-[10px] font-black text-[#0066FF] uppercase tracking-[0.2em] mb-2">
+                      {/* Mobile: always show, Desktop: animate on hover */}
+                      <div className={`lg:transition-all lg:duration-500 lg:delay-100 ${isActive ? 'lg:opacity-100 lg:translate-y-0' : 'lg:opacity-0 lg:translate-y-2 lg:pointer-events-none'}`}>
+                         <p className="text-[9px] lg:text-[10px] font-black text-[#0066FF] uppercase tracking-[0.2em] mb-1 lg:mb-2">
                           {item.subtitle}
                          </p>
-                         <p className="text-sm text-black/80 leading-relaxed font-medium">
+                         <p className="text-xs lg:text-sm text-black/70 leading-relaxed font-medium">
                            {item.content}
                          </p>
                       </div>
                     </div>
-                    <div className={`absolute left-0 top-0 w-2 h-full bg-[#0066FF] transition-transform duration-700 origin-top ${isActive ? 'scale-y-100' : 'scale-y-0'}`}></div>
+                    <div className={`absolute left-0 top-0 w-1 lg:w-2 h-full bg-[#0066FF] lg:transition-transform lg:duration-700 lg:origin-top ${isActive ? 'lg:scale-y-100' : 'lg:scale-y-0'}`}></div>
                   </div>
                 );
               })}

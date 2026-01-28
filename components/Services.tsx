@@ -33,6 +33,18 @@ const Services: React.FC<ServicesProps> = ({ lang }) => {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (activeService) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeService]);
+
   const serviceList: ServiceDetail[] = {
     en: [
       {
